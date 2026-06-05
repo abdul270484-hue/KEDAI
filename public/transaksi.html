@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  />
+
+  <title>
+    Histori Transaksi -
+    Kedai Madep Ngulon
+  </title>
+
+  <link
+    rel="stylesheet"
+    href="css/style.css?v=3"
+  />
+
+  <style>
+    .history-layout {
+      padding: 1rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .top-nav {
+      display: flex;
+      justify-content:
+        space-between;
+      align-items:
+        center;
+      margin-bottom:
+        2rem;
+      padding-bottom:
+        1rem;
+      border-bottom:
+        1px solid
+        var(
+          --border-color
+        );
+    }
+
+    .filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom:
+        1.5rem;
+      background-color:
+        var(--bg-card);
+      padding: 1rem;
+      border-radius:
+        var(--radius-md);
+      border:
+        1px solid
+        var(
+          --border-color
+        );
+    }
+
+    .filters select,
+    .filters input {
+      padding:
+        0.5rem 1rem;
+      background-color:
+        var(
+          --bg-secondary
+        );
+      border:
+        1px solid
+        var(
+          --border-color
+        );
+      color:
+        var(--text-main);
+      border-radius:
+        var(
+          --radius-sm
+        );
+    }
+
+    table {
+      width: 100%;
+      border-collapse:
+        collapse;
+      background-color:
+        var(--bg-card);
+      border-radius:
+        var(
+          --radius-md
+        );
+      overflow:
+        hidden;
+    }
+
+    th,
+    td {
+      padding: 1rem;
+      text-align:
+        left;
+      border-bottom:
+        1px solid
+        var(
+          --border-color
+        );
+    }
+
+    th {
+      background-color:
+        var(
+          --bg-secondary
+        );
+      font-weight:
+        600;
+      color:
+        var(
+          --text-muted
+        );
+    }
+
+    tr:hover {
+      background-color:
+        rgba(
+          255,
+          255,
+          255,
+          0.02
+        );
+    }
+
+    .status-badge {
+      padding:
+        0.25rem 0.5rem;
+      border-radius:
+        999px;
+      font-size:
+        0.8rem;
+      font-weight:
+        600;
+    }
+
+    .status-lunas {
+      background-color:
+        rgba(
+          16,
+          185,
+          129,
+          0.1
+        );
+
+      color:
+        var(
+          --success
+        );
+    }
+
+    .status-belum {
+      background-color:
+        rgba(
+          239,
+          68,
+          68,
+          0.1
+        );
+
+      color:
+        var(
+          --danger
+        );
+    }
+  </style>
+</head>
+
+<body>
+
+  <div
+    class="history-layout"
+  >
+
+    <nav
+      class="top-nav"
+    >
+
+      <div>
+        <h1
+          class="title"
+        >
+          Histori
+          Transaksi
+        </h1>
+      </div>
+
+      <div
+        class="flex gap-2"
+      >
+        <button
+          id="btnBack"
+          class="btn btn-outline"
+        >
+          Kembali
+        </button>
+      </div>
+
+    </nav>
+
+    <div
+      class="filters"
+    >
+
+      <select
+        id="filterDate"
+      >
+        <option
+          value="today"
+        >
+          Hari Ini
+        </option>
+
+        <option
+          value="week"
+        >
+          Minggu Ini
+        </option>
+
+        <option
+          value="month"
+        >
+          Bulan Ini
+        </option>
+      </select>
+
+      <input
+        type="text"
+        id="searchQuery"
+        placeholder="
+        Cari
+        No Meja /
+        Pembayaran /
+        TRX ID
+        "
+      />
+
+      <button
+        id="btnFilter"
+        class="
+        btn
+        btn-primary
+        "
+      >
+        Filter
+      </button>
+
+    </div>
+
+    <div
+      style="
+      overflow-x:auto;
+      "
+    >
+
+      <table
+        id="trxTable"
+      >
+
+        <thead>
+          <tr>
+            <th>
+              Waktu
+            </th>
+
+            <th>
+              ID TRX
+            </th>
+
+            <th>
+              Meja
+            </th>
+
+            <th>
+              Kasir
+            </th>
+
+            <th>
+              Total
+            </th>
+
+            <th>
+              Pembayaran
+            </th>
+
+            <th>
+              Status
+            </th>
+
+            <th>
+              Aksi
+            </th>
+          </tr>
+        </thead>
+
+        <tbody
+          id="trxBody"
+        >
+        </tbody>
+
+      </table>
+
+    </div>
+
+  </div>
+
+  <script type="module">
+
+    import {
+      db,
+      auth
+    }
+    from
+    './js/firebase-config.js';
+
+    import {
+      collection,
+      query,
+      where,
+      orderBy,
+      getDocs,
+      limit,
+      doc,
+      updateDoc,
+      serverTimestamp
+    }
+    from
+    "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    import {
+      checkAuth
+    }
+    from
+    './js/auth.js?v=999';
+
+    import {
+      formatCurrency,
+      formatDate,
+      showLoader,
+      hideLoader,
+      showToast
+    }
+    from
+    './js/app.js';
+
+    checkAuth([
+      'owner',
+      'kasir'
+    ]);
+
+    const trxBody =
+      document
+      .getElementById(
+        'trxBody'
+      );
+
+    let allTrx = [];
+    let isOwner =
+      false;
+
+    document
+    .addEventListener(
+      'authReady',
+      () => {
+
+        isOwner =
+          window
+          .currentUser
+          ?.role ===
+          'owner';
+
+        loadTransactions();
+      }
+    );
+
+    document
+    .getElementById(
+      'btnBack'
+    )
+    .addEventListener(
+      'click',
+      () => {
+
+        if (
+          auth
+          .currentUser
+          ?.email ===
+          'abdul270484@gmail.com'
+        ) {
+
+          window
+          .location
+          .href =
+          'dashboard.html';
+
+        } else {
+
+          window
+          .location
+          .href =
+          'kasir.html';
+        }
+      }
+    );
+
+    async function
+    loadTransactions() {
+
+      showLoader();
+
+      try {
+
+        const dateFilter =
+          document
+          .getElementById(
+            'filterDate'
+          )
+          .value;
+
+        const now =
+          new Date();
+
+        let startDate =
+          new Date();
+
+        if (
+          dateFilter
+          ===
+          'today'
+        ) {
+
+          startDate
+          .setHours(
+            0,0,0,0
+          );
+
+        } else if (
+          dateFilter
+          ===
+          'week'
+        ) {
+
+          startDate
+          .setDate(
+            now
+            .getDate()
+            - 7
+          );
+
+        } else {
+
+          startDate
+          .setMonth(
+            now
+            .getMonth()
+            - 1
+          );
+        }
+
+        const q =
+          query(
+            collection(
+              db,
+              'transactions'
+            ),
+
+            where(
+              'timestamp',
+              '>=',
+              startDate
+            ),
+
+            orderBy(
+              'timestamp',
+              'desc'
+            ),
+
+            limit(
+              100
+            )
+          );
+
+        const snapshot =
+          await getDocs(
+            q
+          );
+
+        allTrx =
+          snapshot.docs
+          .map(doc => ({
+            id:
+              doc.id,
+            ...doc
+            .data()
+          }));
+
+        renderTable(
+          allTrx
+        );
+
+      } catch (
+        error
+      ) {
+
+        console
+        .error(
+          error
+        );
+
+        showToast(
+          'Gagal memuat histori',
+          'error'
+        );
+
+      } finally {
+
+        hideLoader();
+      }
+    }
+
+    function
+    renderTable(
+      data
+    ) {
+
+      trxBody
+      .innerHTML =
+      '';
+
+      if (
+        data.length
+        === 0
+      ) {
+
+        trxBody
+        .innerHTML =
+        `
+        <tr>
+          <td
+            colspan="8"
+            style="
+            text-align:center;
+            "
+          >
+            Tidak ada data
+          </td>
+        </tr>
+        `;
+
+        return;
+      }
+
+      data.forEach(
+        trx => {
+
+          const time =
+            trx.timestamp
+            ? formatDate(
+              trx
+              .timestamp
+              .toDate()
+            )
+            : '-';
+
+          const statusClass =
+            trx.status
+            ===
+            'cancelled'
+            ? 'status-belum'
+            : trx
+            .paymentStatus
+            ===
+            'Lunas'
+            ? 'status-lunas'
+            : 'status-belum';
+
+          const statusText =
+            trx.status
+            ===
+            'cancelled'
+            ? 'DIBATALKAN'
+            : trx
+            .paymentStatus;
+
+          const tr =
+            document
+            .createElement(
+              'tr'
+            );
+
+          tr.innerHTML =
+          `
+          <td>
+            ${time}
+          </td>
+
+          <td
+            style="
+            font-size:
+            0.8rem;
+            "
+          >
+            ${trx.transactionId}
+          </td>
+
+          <td>
+            ${trx.tableNumber}
+          </td>
+
+          <td>
+            ${trx.cashierName}
+          </td>
+
+          <td>
+            ${formatCurrency(
+              trx.total
+            )}
+          </td>
+
+          <td>
+            ${trx.paymentMethod}
+          </td>
+
+          <td>
+            <span
+              class="
+              status-badge
+              ${statusClass}
+              "
+            >
+              ${statusText}
+            </span>
+          </td>
+
+          <td>
+
+            ${
+              isOwner &&
+              trx.status
+              !==
+              'cancelled'
+
+              ? `
+              <button
+                class="
+                btn
+                btn-danger
+                "
+                onclick="
+                window.cancelTrx(
+                  '${trx.id}'
+                )
+                "
+              >
+                Batalkan
+              </button>
+              `
+
+              :
+
+              trx.status
+              ===
+              'cancelled'
+
+              ? `
+              <span>
+                Dibatalkan
+              </span>
+              `
+              :
+
+              '-'
+            }
+
+          </td>
+          `;
+
+          trxBody
+          .appendChild(
+            tr
+          );
+        }
+      );
+    }
+
+    document
+    .getElementById(
+      'btnFilter'
+    )
+    .addEventListener(
+      'click',
+      () => {
+
+        const sq =
+          document
+          .getElementById(
+            'searchQuery'
+          )
+          .value
+          .toLowerCase();
+
+        if (
+          !sq
+        ) {
+
+          renderTable(
+            allTrx
+          );
+
+          return;
+        }
+
+        const filtered =
+          allTrx
+          .filter(
+            t =>
+
+            (
+              t
+              .tableNumber
+              ?.toLowerCase()
+              .includes(
+                sq
+              )
+            )
+
+            ||
+
+            (
+              t
+              .paymentMethod
+              ?.toLowerCase()
+              .includes(
+                sq
+              )
+            )
+
+            ||
+
+            (
+              t
+              .transactionId
+              ?.toLowerCase()
+              .includes(
+                sq
+              )
+            )
+          );
+
+        renderTable(
+          filtered
+        );
+      }
+    );
+
+    document
+    .getElementById(
+      'filterDate'
+    )
+    .addEventListener(
+      'change',
+      loadTransactions
+    );
+
+    window
+    .cancelTrx =
+    async (
+      trxId
+    ) => {
+
+      const reason =
+        prompt(
+          'Alasan pembatalan transaksi?'
+        );
+
+      if (
+        !reason
+      ) return;
+
+      try {
+
+        showLoader();
+
+        await updateDoc(
+          doc(
+            db,
+            'transactions',
+            trxId
+          ),
+          {
+            status:
+              'cancelled',
+
+            cancelReason:
+              reason,
+
+            cancelledBy:
+              window
+              .currentUser
+              ?.name
+              || 'Owner',
+
+            cancelledAt:
+              serverTimestamp()
+          }
+        );
+
+        showToast(
+          'Transaksi dibatalkan',
+          'success'
+        );
+
+        loadTransactions();
+
+      } catch (
+        error
+      ) {
+
+        console
+        .error(
+          error
+        );
+
+        showToast(
+          'Gagal membatalkan transaksi',
+          'error'
+        );
+
+      } finally {
+
+        hideLoader();
+      }
+    };
+
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Owner - Kedai Madep Ngulon</title>
+  <link rel="stylesheet" href="css/style.css?v=3">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    .dashboard-layout {
+      padding: 1rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .top-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    .stat-card {
+      background-color: var(--bg-card);
+      padding: 1.5rem;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-color);
+      box-shadow: var(--shadow-sm);
+    }
+    .stat-title { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 0.5rem; }
+    .stat-value { font-size: 1.8rem; font-weight: 700; color: var(--accent-gold); }
+    
+    .charts-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+    @media(min-width: 768px) {
+      .charts-grid { grid-template-columns: 2fr 1fr; }
+    }
+    .chart-container {
+      background-color: var(--bg-card);
+      padding: 1.5rem;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-color);
+      position: relative;
+    }
+  </style>
+</head>
+<body>
+  
+  <div class="dashboard-layout">
+    <nav class="top-nav">
+      <div>
+        <h1 class="title text-gold">Owner Dashboard</h1>
+        <p class="text-muted" id="currentDateDisplay"></p>
+      </div>
+      <div class="flex gap-2">
+        <a id="btnKasir" href="kasir.html" class="btn btn-outline"> Buka Kasir </a>
+        <a href="transaksi.html" class="btn btn-outline">Histori</a>
+        <a href="kelola-menu.html" class="btn btn-outline">Kelola Menu</a>
+		<a href="kelola-user.html" class="btn btn-outline">Kelola User</a>
+        <button id="btnLogout" class="btn btn-danger">Logout</button>
+      </div>
+    </nav>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-title">Omzet Hari Ini</div>
+        <div class="stat-value" id="todayOmzet">Rp 0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-title">Total Transaksi</div>
+        <div class="stat-value" id="todayTrx">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-title">Menu Terlaris</div>
+        <div class="stat-value" id="bestSeller" style="font-size: 1.2rem; margin-top:0.5rem;">-</div>
+      </div>
+    </div>
+
+    <div class="charts-grid">
+      <div class="chart-container">
+        <h3 style="margin-bottom: 1rem; color: var(--text-muted);">Penjualan Harian (7 Hari Terakhir)</h3>
+        <canvas id="weeklyChart"></canvas>
+      </div>
+      <div class="chart-container">
+        <h3 style="margin-bottom: 1rem; color: var(--text-muted);">Penjualan per Kategori (Hari Ini)</h3>
+        <canvas id="categoryChart"></canvas>
+      </div>
+    </div>
+
+  </div>
+
+  <script type="module">
+    import { checkAuth, logout } from './js/auth.js?v=999';
+    import { formatDate } from './js/app.js';
+    
+    checkAuth(['owner']); // ONLY owner can access
+    
+    document.getElementById('btnLogout').addEventListener('click', logout);
+    document.getElementById('currentDateDisplay').textContent = formatDate(new Date());
+  </script>
+  <script type="module" src="js/dashboard.js?v=999"></script>
+</body>
+</html>

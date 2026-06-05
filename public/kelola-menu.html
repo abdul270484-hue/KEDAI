@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kelola Menu - Kedai Madep Ngulon</title>
+  <link rel="stylesheet" href="css/style.css?v=3">
+  <style>
+    .manager-layout {
+      padding: 1rem;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+    .top-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background-color: var(--bg-card);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+    }
+    th, td {
+      padding: 1rem;
+      text-align: left;
+      border-bottom: 1px solid var(--border-color);
+    }
+    th {
+      background-color: var(--bg-secondary);
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    tr:hover { background-color: rgba(255, 255, 255, 0.02); }
+    
+    /* Modal */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: rgba(0,0,0,0.7);
+      backdrop-filter: blur(4px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    .modal-overlay.active { display: flex; }
+    .modal-content {
+      background-color: var(--bg-card);
+      padding: 2rem;
+      border-radius: var(--radius-md);
+      width: 100%;
+      max-width: 400px;
+      border: 1px solid var(--border-color);
+    }
+  </style>
+</head>
+<body>
+  
+  <div class="manager-layout">
+    <nav class="top-nav">
+      <div>
+        <h1 class="title">Kelola Menu</h1>
+      </div>
+      <div class="flex gap-2">
+        <button id="btnAdd" class="btn btn-primary" onclick="window.openAddModal()">Tambah Menu</button>
+        <a href="dashboard.html" class="btn btn-outline">Kembali</a>
+      </div>
+    </nav>
+
+    <div style="overflow-x: auto;">
+      <table id="menuTable">
+        <thead>
+          <tr>
+            <th>Kategori</th>
+            <th>Nama Menu</th>
+            <th>Harga</th>
+            <th>Status</th>
+            <th>Aksi</th>
+          </tr>
+        </thead>
+        <tbody id="menuBody">
+          <!-- Data via JS -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Form Modal -->
+  <div class="modal-overlay" id="formModal">
+    <div class="modal-content">
+      <div class="flex justify-between items-center mb-4">
+        <h3 id="modalTitle">Tambah Menu</h3>
+        <button class="btn btn-outline" onclick="window.closeAddModal()" style="padding: 0.25rem 0.5rem; border:none;">X</button>
+      </div>
+      
+      <form id="menuForm">
+        <input type="hidden" id="menuId">
+        <div class="input-group">
+          <label class="input-label">Kategori</label>
+          <input type="text" id="menuCategory" class="input-control" required placeholder="Contoh: MIE HOT PLATE">
+        </div>
+        <div class="input-group">
+          <label class="input-label">Nama Menu</label>
+          <input type="text" id="menuName" class="input-control" required>
+        </div>
+        <div class="input-group">
+          <label class="input-label">Harga (Rp)</label>
+          <input type="number" id="menuPrice" class="input-control" required>
+        </div>
+        <div class="input-group">
+          <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.875rem; cursor: pointer;">
+            <input type="checkbox" id="menuAvailable" checked> Tersedia (Bisa dipesan)
+          </label>
+        </div>
+        
+        <button type="submit" class="btn btn-primary w-full mt-4">Simpan</button>
+      </form>
+    </div>
+  </div>
+
+  <script type="module">
+import {
+  checkAuth
+} from './js/auth.js?v=999';
+
+// beri delay kecil agar session kebaca dulu
+setTimeout(() => {
+  checkAuth(['owner']);
+}, 200);
+</script>
+  <script type="module" src="js/kelola-menu.js"></script>
+</body>
+</html>

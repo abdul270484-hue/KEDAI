@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Laporan - Kedai Madep Ngulon</title>
+  <link rel="stylesheet" href="css/style.css?v=3">
+  <style>
+    .laporan-layout {
+      padding: 1rem;
+      max-width: 800px;
+      margin: 2rem auto;
+      background-color: var(--bg-card);
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-color);
+      box-shadow: var(--shadow-sm);
+    }
+  </style>
+</head>
+<body>
+  
+  <div class="laporan-layout">
+    <div class="flex justify-between items-center mb-4">
+      <h2 class="title">Export Laporan</h2>
+      <a href="dashboard.html" class="btn btn-outline">Kembali ke Dashboard</a>
+    </div>
+
+    <div class="input-group">
+      <label class="input-label">Pilih Bulan</label>
+      <input type="month" id="monthPicker" class="input-control">
+    </div>
+
+    <button id="btnExport" class="btn btn-primary w-full mt-4">Download Laporan CSV</button>
+  </div>
+
+  <script type="module">
+    import { checkAuth } from './js/auth.js';
+    import { db } from './js/firebase-config.js';
+    import { collection, query, where, getDocs, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { showLoader, hideLoader, showToast } from './js/app.js';
+
+    checkAuth(['owner']);
+
+    // Set default month
+    const now = new Date();
+    const m = String(now.getMonth() + 1).padStart(2, '0');
+    const y = now.getFullYear();
+    document.getElementById('monthPicker').value = `${y}-${m}`;
+
+    document.getElementById('btnExport').addEventListener('click', async () => {
+      const monthVal = document.getElementById('monthPicker').value; // YYYY-MM
+      if (!monthVal) {
+        showToast('Pilih bulan terlebih dahulu', 'error');
+        return;
+      }
+
+      showLoader();
+      try {
+        const startDate = `${monthVal}-01`;
+        // Hacky way to get end of month string
+        const nextMonthDate = new Date(monthVal + '-01');
+        nextMonthDate.setMonth(nextMonthDate.getMonth() + 1);
+        const endDate = nextMonthDate.toISOString().split('T')[0];
+
+        const q = query(
+          collection(db, 'analytics_daily'),
+          where('__name__', '>=', startDate),
+          where('__name__', '<', endDate),
+          orderBy('__name__', 'asc')
+        );
+
+        const snapshot = await getDocs(q);
+        
+        if (snapshot.empty) {
+          showToast('Tidak ada data untuk bulan ini', 'error');
+          hideLoader();
+          return;
+        }
+
+        let csvContent = "data:text/csv;charset=utf-8,";
+        csvContent += "Tanggal,Total Omzet,Total Transaksi\n";
+
+        snapshot.forEach(doc => {
+          const data = doc.data();
+          csvContent += `${doc.id},${data.totalSales || 0},${data.totalTransaction || 0}\n`;
+        });
+
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", `Laporan_Omzet_${monthVal}.csv`);
+        document.body.appendChild(link);
+        
+        link.click();
+        document.body.removeChild(link);
+        
+        showToast('Berhasil download laporan', 'success');
+
+      } catch (error) {
+        console.error(error);
+        showToast('Gagal export laporan', 'error');
+      } finally {
+        hideLoader();
+      }
+    });
+  </script>
+</body>
+</html>

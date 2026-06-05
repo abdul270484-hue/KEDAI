@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kasir - Kedai Madep Ngulon</title>
+  <link rel="stylesheet" href="css/style.css?v=3">
+</head>
+<body>
+  
+  <div class="pos-layout no-print">
+    
+    <!-- Sidebar / Categories -->
+    <aside class="pos-sidebar" id="categorySidebar">
+      <!-- Categories will be injected here by JS -->
+    </aside>
+
+    <!-- Main Content -->
+    <main class="pos-main">
+      <header class="pos-header">
+        <div>
+          <h2 class="title" style="font-size: 1.25rem;">KEDAI MADEP NGULON</h2>
+          <p class="text-muted" style="font-size: 0.85rem;" id="cashierNameDisplay">Kasir: -</p>
+        </div>
+        <div class="flex gap-2">
+          <button id="btnDashboard" class="btn btn-outline hidden" onclick="window.location.href='dashboard.html'" style="padding: 0.5rem 1rem;">Dashboard</button>
+          <button id="btnHistory" class="btn btn-outline" style="padding: 0.5rem 1rem;">Histori</button>
+          <button id="btnLogout" class="btn btn-danger" style="padding: 0.5rem 1rem;">Logout</button>
+        </div>
+      </header>
+
+      <!-- Table Selection -->
+      <div class="table-selector" id="tableSelector">
+        <!-- Tables injected by JS -->
+      </div>
+
+      <!-- Menu Grid -->
+      <div class="menu-grid" id="menuGrid">
+        <!-- Menu cards injected by JS -->
+      </div>
+    </main>
+
+    <!-- Cart Sidebar -->
+    <aside class="pos-cart">
+      <div class="cart-header">
+        <h3 style="font-size: 1.1rem;">Keranjang</h3>
+        <span class="text-gold" id="cartCount">0 Item</span>
+      </div>
+
+      <div class="cart-items" id="cartItems">
+        <!-- Cart items injected by JS -->
+        <div class="text-muted" style="text-align: center; margin-top: 2rem;">Keranjang kosong</div>
+      </div>
+
+      <div class="cart-summary">
+        <div class="summary-row">
+          <span>Subtotal</span>
+          <span id="subtotalDisplay">Rp 0</span>
+        </div>
+        
+        <div class="payment-methods" id="paymentMethods">
+          <button class="pay-btn active" data-method="Cash">Cash</button>
+          <button class="pay-btn" data-method="QRIS">QRIS</button>
+          <button class="pay-btn" data-method="Transfer">Transfer</button>
+        </div>
+
+        <div class="payment-methods" id="paymentStatuses">
+          <button class="pay-btn active" data-status="Lunas">Lunas</button>
+          <button class="pay-btn" data-status="Belum Bayar">Belum Bayar</button>
+        </div>
+
+        <div class="summary-total">
+          <span>TOTAL</span>
+          <span id="totalDisplay">Rp 0</span>
+        </div>
+
+        <button class="btn btn-primary w-full" id="btnCheckout" style="font-size: 1.1rem; padding: 1rem;">
+          PROSES PEMBAYARAN
+        </button>
+      </div>
+    </aside>
+
+  </div>
+
+  <!-- Payment Confirmation Modal -->
+  <div class="modal-overlay no-print" id="paymentModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">Konfirmasi Pembayaran</h3>
+      </div>
+      <div class="modal-body">
+        <p style="margin-bottom: 0.5rem; font-weight: bold; font-size: 1.1rem;">Total Tagihan: <span id="modalTotalDisplay" style="color: var(--accent-gold);">Rp 0</span></p>
+        
+        <div class="input-group" id="cashInputGroup" style="margin-top: 1rem; text-align: left; display: none;">
+          <label class="input-label" for="cashReceived">Uang Diterima (Rp)</label>
+          <input type="number" id="cashReceived" class="input-control" placeholder="Contoh: 50000" autocomplete="off">
+          <div id="changeDisplayContainer" style="margin-top: 0.5rem; display: none;">
+            <p style="font-size: 0.95rem; color: var(--text-muted);">Kembalian: <strong id="changeAmount" style="color: var(--success); font-size: 1.2rem;">Rp 0</strong></p>
+          </div>
+          <p id="cashWarning" style="color: var(--danger); font-size: 0.8rem; margin-top: 0.25rem; display: none;">Uang tidak cukup!</p>
+        </div>
+        <div class="input-group" style="margin-top: 1rem; text-align: left;">
+          <label class="input-label" for="waNumber">Nomor WhatsApp Pelanggan (Opsional)</label>
+          <input type="tel" id="waNumber" class="input-control" placeholder="Contoh: 08123456789" autocomplete="off">
+          <small class="text-muted" style="font-size: 0.75rem; margin-top: 0.25rem; display: block;">Isi untuk kirim struk WA (kosongi jika tidak perlu)</small>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-danger" id="btnCancelPayment">Batal</button>
+        <button class="btn btn-primary" id="btnConfirmPayment">Simpan</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Print Layout (Hidden by default, shown on print) -->
+  <div id="printArea" class="print-only" style="display: none;">
+    <!-- Filled dynamically by JS -->
+  </div>
+
+  <script type="module">
+    import { checkAuth, logout } from './js/auth.js?v=999';
+    checkAuth(['owner','kasir']); // Allow both to see POS
+    
+    document.getElementById('btnLogout').addEventListener('click', logout);
+    document.getElementById('btnHistory').addEventListener('click', () => {
+      window.location.href = 'transaksi.html';
+    });
+  </script>
+  <script type="module" src="js/transaction.js?v=1005"></script>
+</body>
+</html>
