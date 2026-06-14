@@ -37,5 +37,12 @@ service cloud.firestore {
     match /analytics_daily/{dateId} {
       allow read, write: if isAuthenticated();
     }
+    
+    // 4. KELOLA PROMO
+    // Kasir butuh membaca daftar promo yang aktif. Hanya Owner yang boleh nambah/ubah promo.
+    match /promos/{promoId} {
+      allow read: if isAuthenticated();
+      allow write: if isOwner();
+    }
   }
 }

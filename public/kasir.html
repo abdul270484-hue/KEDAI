@@ -129,8 +129,21 @@
     <!-- Filled dynamically by JS -->
   </div>
 
+  <!-- Promo Modal -->
+  <div class="modal-overlay" id="promoModal">
+    <div class="modal-content" style="max-width: 400px; text-align: center;">
+      <h3 style="margin-bottom: 1rem;">Pilih Promo Aktif</h3>
+      <div id="promoListContainer" style="display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1rem;">
+        <!-- Promos injected here -->
+      </div>
+      <button class="btn btn-danger w-full" id="btnRemovePromo" style="margin-bottom: 0.5rem;">Tidak Ada Diskon</button>
+      <button class="btn btn-outline w-full" id="btnCancelPromoModal">Batal</button>
+    </div>
+  </div>
+
   <script type="module">
-    import { checkAuth, logout } from './js/auth.js?v=999';
+    import { checkAuth } from './js/auth.js?v=999';
+    import { logout } from './js/auth.js?v=999';
     checkAuth(['owner','kasir']); // Allow both to see POS
     
     document.getElementById('btnLogout').addEventListener('click', logout);
@@ -138,6 +151,6 @@
       window.location.href = 'transaksi.html';
     });
   </script>
-  <script type="module" src="js/transaction.js?v=1007"></script>
+  <script type="module" src="js/transaction.js?v=1008"></script>
 </body>
 </html>

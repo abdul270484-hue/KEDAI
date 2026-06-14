@@ -19,7 +19,10 @@ let cart = [];
 let selectedTable = '';
 let paymentMethod = 'Cash';
 let paymentStatus = 'Lunas';
+let discountAmount = 0;
+let appliedPromoName = '';
 let cashierName = 'Kasir';
+let activePromos = [];
 
 // Elements
 const categorySidebar = document.getElementById('categorySidebar');
@@ -80,6 +83,7 @@ async function loadMenuRealtime() {
   showLoader();
 
   renderTables();
+  loadPromos();
 
   try {
 
@@ -208,6 +212,19 @@ async function loadMenuRealtime() {
   }
 }
 
+const loadPromos = async () => {
+  try {
+    const snap = await getDocs(collection(db, 'promos'));
+    activePromos = [];
+    snap.forEach(doc => {
+      const data = doc.data();
+      if (data.isActive) activePromos.push({ id: doc.id, ...data });
+    });
+  } catch (error) {
+    console.error("Gagal load promo", error);
+  }
+};
+
 const renderCategories = () => {
   categorySidebar.innerHTML = '';
   categories.forEach(cat => {
@@ -334,7 +351,19 @@ const renderCart = () => {
   });
   
   subtotalDisplay.textContent = formatCurrency(subtotal);
-  totalDisplay.textContent = formatCurrency(subtotal); // No tax/discount logic yet
+  let total = subtotal - discountAmount;
+  if (total < 0) total = 0;
+  
+  const discountDisplay = document.getElementById('discountDisplay');
+  if (discountDisplay) {
+    if (appliedPromoName) {
+      discountDisplay.textContent = `- ${formatCurrency(discountAmount)} (${appliedPromoName})`;
+    } else {
+      discountDisplay.textContent = `- Rp 0`;
+    }
+  }
+  
+  totalDisplay.textContent = formatCurrency(total);
   cartCount.textContent = `${totalQty} Item`;
 };
 
@@ -363,6 +392,51 @@ document.querySelectorAll('#paymentStatuses .pay-btn').forEach(btn => {
 const paymentModal = document.getElementById('paymentModal');
 const btnCancelPayment = document.getElementById('btnCancelPayment');
 const btnConfirmPayment = document.getElementById('btnConfirmPayment');
+const promoModal = document.getElementById('promoModal');
+const promoListContainer = document.getElementById('promoListContainer');
+const btnRemovePromo = document.getElementById('btnRemovePromo');
+const btnCancelPromoModal = document.getElementById('btnCancelPromoModal');
+
+// Discount Handler
+document.getElementById('btnSetDiscount').addEventListener('click', () => {
+  if (promoModal) {
+    promoListContainer.innerHTML = '';
+    if (activePromos.length === 0) {
+      promoListContainer.innerHTML = '<p class="text-muted" style="margin-bottom: 1rem;">Belum ada promo aktif yang dibuat oleh Owner.</p>';
+    } else {
+      activePromos.forEach(promo => {
+        const btn = document.createElement('button');
+        btn.className = 'btn btn-outline';
+        btn.style.textAlign = 'left';
+        btn.style.marginBottom = '0.5rem';
+        btn.style.width = '100%';
+        btn.textContent = `${promo.name} (- ${formatCurrency(promo.discountAmount)})`;
+        btn.onclick = () => {
+          discountAmount = promo.discountAmount;
+          appliedPromoName = promo.name;
+          promoModal.classList.remove('active');
+          renderCart();
+        };
+        promoListContainer.appendChild(btn);
+      });
+    }
+    promoModal.classList.add('active');
+  }
+});
+
+if (btnCancelPromoModal) {
+  btnCancelPromoModal.addEventListener('click', () => {
+    promoModal.classList.remove('active');
+  });
+}
+if (btnRemovePromo) {
+  btnRemovePromo.addEventListener('click', () => {
+    discountAmount = 0;
+    appliedPromoName = '';
+    promoModal.classList.remove('active');
+    renderCart();
+  });
+}
 
 document.getElementById('btnCheckout').addEventListener('click', () => {
   if (cart.length === 0) {
@@ -510,7 +584,8 @@ if (btnConfirmPayment) {
       selectedTable,
     items: cart,
     subtotal,
-    discount: 0,
+    discount: discountAmount,
+    promoName: appliedPromoName,
     total,
     paymentMethod,
     paymentStatus,
@@ -549,6 +624,8 @@ if (btnConfirmPayment) {
     // Reset State
     cart = [];
     selectedTable = '';
+    discountAmount = 0;
+    appliedPromoName = '';
     renderTables();
     renderCart();
     
@@ -638,6 +715,8 @@ if (btnConfirmPayment) {
         tableNumber: printTableNumber,
         items: printCartData,
         total,
+        discount: discountAmount,
+        promoName: appliedPromoName,
         paymentMethod,
         paymentStatus,
         cashierName,
@@ -695,6 +774,12 @@ const printReceipt = (trx) => {
       <span>TOTAL:</span>
       <span>${formatCurrency(trx.total)}</span>
     </div>
+    ${trx.discount > 0 ? `
+    <div class="flex-between" style="font-size: 13px;">
+      <span>Diskon ${trx.promoName ? `(${trx.promoName})` : ''}:</span>
+      <span>- ${formatCurrency(trx.discount)}</span>
+    </div>
+    ` : ''}
     ${trx.cashReceived > 0 ? `
     <div class="flex-between" style="margin-top: 5px;">
       <span>Tunai:</span>

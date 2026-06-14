@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kelola Promo - Kedai Madep Ngulon</title>
+  <link rel="stylesheet" href="css/style.css?v=4">
+  <style>
+    .manager-layout {
+      padding: 1rem;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+    .top-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background-color: var(--bg-card);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+    }
+    th, td {
+      padding: 1rem;
+      text-align: left;
+      border-bottom: 1px solid var(--border-color);
+    }
+    th {
+      background-color: var(--bg-secondary);
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    tr:hover { background-color: rgba(255, 255, 255, 0.02); }
+    
+    /* Modal */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: rgba(0,0,0,0.7);
+      backdrop-filter: blur(4px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    .modal-overlay.active { display: flex; }
+    .modal-content {
+      background-color: var(--bg-card);
+      padding: 2rem;
+      border-radius: var(--radius-md);
+      width: 100%;
+      max-width: 400px;
+      border: 1px solid var(--border-color);
+    }
+  </style>
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+</head>
+<body class="page-enter">
+  
+  <div class="manager-layout">
+    <nav class="top-nav">
+      <div>
+        <h1 class="title">Kelola Promo & Diskon</h1>
+      </div>
+      <div class="flex gap-2">
+        <button id="btnAdd" class="btn btn-primary" onclick="window.openAddModal()"><i class="ph ph-plus"></i> Tambah Promo</button>
+        <a href="dashboard.html" class="btn btn-outline"><i class="ph ph-arrow-left"></i> Kembali</a>
+      </div>
+    </nav>
+
+    <div style="overflow-x: auto;">
+      <table id="promoTable">
+        <thead>
+          <tr>
+            <th>Nama Promo</th>
+            <th>Nominal Diskon (Rp)</th>
+            <th>Status Aktif</th>
+            <th>Aksi</th>
+          </tr>
+        </thead>
+        <tbody id="promoBody">
+          <!-- Data via JS -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Form Modal -->
+  <div class="modal-overlay" id="formModal">
+    <div class="modal-content">
+      <div class="flex justify-between items-center mb-4">
+        <h3 id="modalTitle">Tambah Promo</h3>
+        <button class="btn btn-outline" onclick="window.closeAddModal()" style="padding: 0.25rem 0.5rem; border:none;">X</button>
+      </div>
+      
+      <form id="promoForm">
+        <input type="hidden" id="promoId">
+        <div class="input-group" style="margin-bottom: 1rem;">
+          <label style="display:block; margin-bottom:0.5rem; color:var(--text-muted);">Nama Promo</label>
+          <input type="text" class="input-control" id="promoName" required placeholder="Cth: Diskon Jumat Berkah" style="width:100%; padding:0.8rem; background:var(--bg-secondary); border:1px solid var(--border-color); color:var(--text-main); border-radius:var(--radius-sm);">
+        </div>
+        <div class="input-group" style="margin-bottom: 1rem;">
+          <label style="display:block; margin-bottom:0.5rem; color:var(--text-muted);">Nominal Diskon</label>
+          <input type="number" class="input-control" id="promoDiscount" required placeholder="5000" style="width:100%; padding:0.8rem; background:var(--bg-secondary); border:1px solid var(--border-color); color:var(--text-main); border-radius:var(--radius-sm);">
+        </div>
+        <div class="input-group" style="margin-bottom: 1.5rem;">
+          <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.875rem; cursor: pointer;">
+            <input type="checkbox" id="promoStatus" checked> Aktif
+          </label>
+        </div>
+        <button type="submit" class="btn btn-primary w-full" id="btnSave">Simpan</button>
+      </form>
+    </div>
+  </div>
+
+  <script type="module" src="./js/kelola-promo.js?v=1"></script>
+</body>
+</html>
