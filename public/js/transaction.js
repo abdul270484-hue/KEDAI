@@ -1,6 +1,7 @@
 import {
   collection,
   getDocs,
+  getDoc,
   addDoc,
   serverTimestamp,
   doc,
@@ -458,9 +459,27 @@ if (btnConfirmPayment) {
     if (paymentModal) paymentModal.classList.remove('active');
     showLoader();
     try {
-    const transactionId = `TRX-${Date.now()}`;
-    const timestamp = window.isOfflineMode ? new Date() : serverTimestamp();
     const dateStr = new Date().toISOString().split('T')[0];
+    const timestamp = window.isOfflineMode ? new Date() : serverTimestamp();
+    
+    // Generate Transaction ID: MDPYYMMDDXX
+    let nextSeq = 1;
+    if (!window.isOfflineMode) {
+      const analyticsRef = doc(db, 'analytics_daily', dateStr);
+      const analyticsSnap = await getDoc(analyticsRef);
+      if (analyticsSnap.exists()) {
+        nextSeq = (analyticsSnap.data().totalTransaction || 0) + 1;
+      }
+    } else {
+      nextSeq = Math.floor(Math.random() * 100); // Random fallback for offline
+    }
+    
+    const today = new Date();
+    const yy = String(today.getFullYear()).slice(-2);
+    const mm = String(today.getMonth() + 1).padStart(2, '0');
+    const dd = String(today.getDate()).padStart(2, '0');
+    const seqStr = String(nextSeq).padStart(2, '0');
+    const transactionId = `MDP${yy}${mm}${dd}${seqStr}`;
     
     const waInput = document.getElementById('waNumber');
     const waNumber = waInput ? waInput.value.trim() : '';
