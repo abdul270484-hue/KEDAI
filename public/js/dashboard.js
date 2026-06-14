@@ -101,5 +101,87 @@ const loadDashboardData = () => {
   });
 };
 
+// DOWNLOAD CSV LOGIC
+const btnDownloadCsv = document.getElementById('btnDownloadCsv');
+if (btnDownloadCsv) {
+  btnDownloadCsv.addEventListener('click', async () => {
+    try {
+      const btn = btnDownloadCsv;
+      const originalText = btn.textContent;
+      btn.textContent = 'Menyiapkan Data...';
+      btn.disabled = true;
+
+      // Ambil transaksi bulan ini
+      const startOfMonth = new Date();
+      startOfMonth.setDate(1);
+      startOfMonth.setHours(0,0,0,0);
+      
+      const q = query(
+        collection(db, 'transactions'),
+        where('timestamp', '>=', startOfMonth),
+        orderBy('timestamp', 'desc')
+      );
+      
+      const snapshot = await getDocs(q);
+      
+      if (snapshot.empty) {
+        alert('Belum ada data transaksi bulan ini.');
+        btn.textContent = originalText;
+        btn.disabled = false;
+        return;
+      }
+
+      let csvContent = "data:text/csv;charset=utf-8,";
+      // Header
+      csvContent += "ID Transaksi,Tanggal,Jam,Kasir,Meja,Status,Metode Bayar,Total,Detail Pesanan\n";
+
+      snapshot.forEach(doc => {
+        const d = doc.data();
+        const dateObj = d.timestamp?.toDate() || new Date();
+        const dateStr = `${dateObj.getDate()}/${dateObj.getMonth()+1}/${dateObj.getFullYear()}`;
+        const timeStr = `${dateObj.getHours()}:${String(dateObj.getMinutes()).padStart(2, '0')}`;
+        
+        let itemStr = "";
+        if (d.items) {
+          itemStr = d.items.map(i => `${i.qty}x ${i.name}`).join('; ');
+        }
+        
+        // Escape quotes
+        itemStr = `"${itemStr}"`;
+
+        const row = [
+          doc.id,
+          dateStr,
+          timeStr,
+          d.cashierName || '-',
+          d.tableNumber || '-',
+          d.paymentStatus || '-',
+          d.paymentMethod || '-',
+          d.total || 0,
+          itemStr
+        ].join(",");
+        
+        csvContent += row + "\n";
+      });
+
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", `Laporan_Kedai_${startOfMonth.getMonth()+1}_${startOfMonth.getFullYear()}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      btn.textContent = originalText;
+      btn.disabled = false;
+    } catch (error) {
+      console.error("CSV Download Error:", error);
+      alert('Gagal mengunduh laporan.');
+      btnDownloadCsv.textContent = 'Download Data (CSV)';
+      btnDownloadCsv.disabled = false;
+    }
+  });
+}
+
 initCharts();
 loadDashboardData();

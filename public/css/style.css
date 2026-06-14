@@ -565,6 +565,9 @@ h1, h2, h3, h4 { font-weight: 600; }
 
 /* Print Styles */
 @media print {
+  @page {
+    margin: 0; /* Removes default browser headers and footers */
+  }
   .no-print,
   #global-loader,
   .loader-overlay,

@@ -1,0 +1,41 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Fungsi untuk mengecek apakah user sudah login
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    // Fungsi untuk mengecek apakah user adalah Owner
+    function isOwner() {
+      return isAuthenticated() && request.auth.token.email == 'abdul270484@gmail.com';
+    }
+
+    // 1. KELOLA USER (Kasir)
+    // Semua user yang login boleh membaca daftar kasir (diperlukan untuk verifikasi di frontend)
+    // Tapi HANYA OWNER yang boleh menambahkan/mengubah/menghapus kasir baru
+    match /users/{userId} {
+      allow read: if isAuthenticated();
+      allow write: if isOwner();
+    }
+
+    // 2. KELOLA MENU
+    // Kasir butuh membaca menu untuk transaksi. Tapi HANYA OWNER yang boleh ubah harga/tambah menu.
+    match /menu/{menuId} {
+      allow read: if isAuthenticated();
+      allow write: if isOwner();
+    }
+
+    // 3. TRANSAKSI & LAPORAN
+    // Kasir dibolehkan membuat transaksi baru dan mengupdate analytics harian.
+    // Owner tentu saja bebas melakukan read/write.
+    match /transactions/{trxId} {
+      allow read, write: if isAuthenticated();
+    }
+    
+    match /analytics_daily/{dateId} {
+      allow read, write: if isAuthenticated();
+    }
+  }
+}
