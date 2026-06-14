@@ -8,7 +8,7 @@ import {
   increment
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 import { db } from './firebase-config.js';
-import { formatCurrency, showToast, showLoader, hideLoader } from './app.js';
+import { formatCurrency, showToast, showLoader, hideLoader, playSound } from './app.js';
 
 // State
 let menuData = [];
@@ -267,6 +267,7 @@ const renderMenu = () => {
 
 // Cart Logic
 const addToCart = (item) => {
+  playSound('pop');
   // Simple add, no note initially. Note can be added in cart.
   const existingItemIndex = cart.findIndex(c => c.name === item.name && c.note === '');
   if (existingItemIndex > -1) {
@@ -518,6 +519,7 @@ if (btnConfirmPayment) {
        }, { merge: true }); // merge true allows creating if not exists
     }
     
+    playSound('kaching');
     showToast(`Transaksi Berhasil! (${transactionId})`, 'success');
     
     // Reset State
@@ -650,6 +652,9 @@ const printReceipt = (trx) => {
   });
 
   printArea.innerHTML = `
+    <div class="text-center">
+      <img src="img/logo.jpeg" style="width: 60px; height: 60px; object-fit: cover; border-radius: 50%; filter: grayscale(100%); margin-bottom: 5px;">
+    </div>
     <h2>KEDAI MADEP NGULON</h2>
     <div class="text-center" style="margin-bottom: 10px;">
       Point of Sales System<br>

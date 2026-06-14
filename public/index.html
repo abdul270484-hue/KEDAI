@@ -4,37 +4,32 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login - Kedai Madep Ngulon</title>
-  <link rel="stylesheet" href="css/style.css?v=3">
+  <link rel="stylesheet" href="css/style.css?v=4">
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
 </head>
-<body>
+<body class="page-enter">
 
   <div class="auth-container">
     <div class="auth-card">
-      <div class="brand-logo">
-        <h1>KEDAI MADEP NGULON</h1>
-        <p>Point of Sales System</p>
+      <div class="brand-logo" style="display: flex; flex-direction: column; align-items: center;">
+        <img src="img/logo.jpeg" alt="Logo Kedai" style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover; margin-bottom: 1rem; border: 2px solid var(--accent-gold);">
+        <h1>Kedai Madep Ngulon</h1>
+        <p>Sistem Kasir & Manajemen</p>
       </div>
 
-      <div style="text-align:center;">
-        <p
-          style="
-          color: var(--text-muted);
-          margin-bottom: 1.5rem;">
-          Login menggunakan Gmail
-        </p>
-
-        <button
-          id="btnGoogleLogin"
-          class="btn btn-primary w-full"
-          type="button">
-          Login dengan Google
-        </button>
-      </div>
-
+      <button id="btnGoogleLogin" class="btn btn-primary w-full" style="justify-content: center;">
+        <i class="ph ph-google-logo" style="font-size: 1.25rem;"></i>
+        Masuk dengan Google
+      </button>
+      
+      <p style="text-align: center; margin-top: 1.5rem; color: var(--text-muted); font-size: 0.8rem;">
+        Hanya untuk karyawan resmi & owner
+      </p>
     </div>
   </div>
 
-  <script type="module" src="js/auth.js?v=999"></script>
+  <script type="module" src="./js/app.js?v=999"></script>
+  <script type="module" src="./js/auth.js?v=999"></script>
 
 </body>
 </html>

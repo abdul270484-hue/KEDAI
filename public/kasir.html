@@ -5,8 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Kasir - Kedai Madep Ngulon</title>
   <link rel="stylesheet" href="css/style.css?v=3">
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
 </head>
-<body>
+<body class="page-enter">
   
   <div class="pos-layout no-print">
     
@@ -18,14 +19,17 @@
     <!-- Main Content -->
     <main class="pos-main">
       <header class="pos-header">
-        <div>
-          <h2 class="title" style="font-size: 1.25rem;">KEDAI MADEP NGULON</h2>
-          <p class="text-muted" style="font-size: 0.85rem;" id="cashierNameDisplay">Kasir: -</p>
+        <div style="display: flex; align-items: center; gap: 0.75rem;">
+          <img src="img/logo.jpeg" alt="Logo" style="width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--accent-gold);">
+          <div>
+            <h2 class="title" style="font-size: 1.25rem;">KEDAI MADEP NGULON</h2>
+            <p class="text-muted" style="font-size: 0.85rem;" id="cashierNameDisplay">Kasir: -</p>
+          </div>
         </div>
         <div class="flex gap-2">
-          <button id="btnDashboard" class="btn btn-outline hidden" onclick="window.location.href='dashboard.html'" style="padding: 0.5rem 1rem;">Dashboard</button>
-          <button id="btnHistory" class="btn btn-outline" style="padding: 0.5rem 1rem;">Histori</button>
-          <button id="btnLogout" class="btn btn-danger" style="padding: 0.5rem 1rem;">Logout</button>
+          <button id="btnDashboard" class="btn btn-outline hidden" onclick="window.location.href='dashboard.html'" style="padding: 0.5rem 1rem;"><i class="ph ph-squares-four"></i> Dasbor</button>
+          <button id="btnHistory" class="btn btn-outline" style="padding: 0.5rem 1rem;"><i class="ph ph-clock-counter-clockwise"></i> Histori</button>
+          <button id="btnLogout" class="btn btn-danger" style="padding: 0.5rem 1rem;"><i class="ph ph-sign-out"></i> Logout</button>
         </div>
       </header>
 
@@ -59,9 +63,9 @@
         </div>
         
         <div class="payment-methods" id="paymentMethods">
-          <button class="pay-btn active" data-method="Cash">Cash</button>
-          <button class="pay-btn" data-method="QRIS">QRIS</button>
-          <button class="pay-btn" data-method="Transfer">Transfer</button>
+          <button class="pay-btn active" data-method="Cash"><i class="ph ph-money"></i> Cash</button>
+          <button class="pay-btn" data-method="QRIS"><i class="ph ph-qr-code"></i> QRIS</button>
+          <button class="pay-btn" data-method="Transfer"><i class="ph ph-bank"></i> Transfer</button>
         </div>
 
         <div class="payment-methods" id="paymentStatuses">
