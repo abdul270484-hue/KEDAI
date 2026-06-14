@@ -514,6 +514,45 @@ if (btnCancelPayment) {
   });
 }
 
+// --- TELEGRAM NOTIFICATION ---
+const TELEGRAM_BOT_TOKEN = '8812350691:AAGOAkgR5nJqARg0f0lcCmJJbiX5kDadrHQ';
+const TELEGRAM_CHAT_ID = '8891442507';
+
+const sendTelegramNotification = async (trxId, table, items, subtotal, discount, promoName, total, paymentMethod) => {
+  try {
+    let itemsText = '';
+    items.forEach(item => {
+      itemsText += `- ${item.qty}x ${item.name} (${formatCurrency(item.price)})\n`;
+    });
+    
+    let discountText = '';
+    if (discount > 0) {
+      discountText = `\n🎁 *Diskon:* -${formatCurrency(discount)} ${promoName ? `(${promoName})` : ''}`;
+    }
+
+    const message = `🔔 *TRANSAKSI BARU!*\n\n` +
+      `🆔 *ID:* ${trxId}\n` +
+      `🪑 *Meja:* ${table}\n` +
+      `💳 *Metode:* ${paymentMethod}\n\n` +
+      `🛒 *Pesanan:*\n${itemsText}` +
+      `\n💰 *Subtotal:* ${formatCurrency(subtotal)}` +
+      discountText +
+      `\n\n💵 *TOTAL AKHIR: ${formatCurrency(total)}*`;
+
+    await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        chat_id: TELEGRAM_CHAT_ID,
+        text: message,
+        parse_mode: 'Markdown'
+      })
+    });
+  } catch(e) {
+    console.error("Gagal mengirim Telegram notif", e);
+  }
+};
+
 if (btnConfirmPayment) {
   btnConfirmPayment.addEventListener('click', async () => {
     const subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
@@ -616,6 +655,9 @@ if (btnConfirmPayment) {
          totalTransaction: increment(1),
          ...categoryUpdates
        }, { merge: true }); // merge true allows creating if not exists
+       
+       // 3. Send Silent Notification to Owner
+       sendTelegramNotification(transactionId, selectedTable, cart, subtotal, discountAmount, appliedPromoName, total, paymentMethod);
     }
     
     playSound('kaching');
