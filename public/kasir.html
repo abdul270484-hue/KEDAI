@@ -62,6 +62,14 @@
           <span id="subtotalDisplay">Rp 0</span>
         </div>
         
+        <div class="summary-row" style="margin-top: 0.5rem; font-size: 0.9rem;">
+          <span style="display: flex; align-items: center; gap: 0.5rem;">
+            Diskon 
+            <button id="btnSetDiscount" class="btn btn-outline" style="padding: 0.15rem 0.4rem; font-size: 0.7rem;"><i class="ph ph-pencil-simple"></i> Set</button>
+          </span>
+          <span id="discountDisplay" class="text-danger">- Rp 0</span>
+        </div>
+        
         <div class="payment-methods" id="paymentMethods">
           <button class="pay-btn active" data-method="Cash"><i class="ph ph-money"></i> Cash</button>
           <button class="pay-btn" data-method="QRIS"><i class="ph ph-qr-code"></i> QRIS</button>
@@ -130,6 +138,6 @@
       window.location.href = 'transaksi.html';
     });
   </script>
-  <script type="module" src="js/transaction.js?v=1006"></script>
+  <script type="module" src="js/transaction.js?v=1007"></script>
 </body>
 </html>

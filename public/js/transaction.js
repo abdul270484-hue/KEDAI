@@ -376,8 +376,10 @@ document.getElementById('btnCheckout').addEventListener('click', () => {
   
   if (paymentModal) {
     const subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+    let total = subtotal - discountAmount;
+    if (total < 0) total = 0;
     const modalTotalDisplay = document.getElementById('modalTotalDisplay');
-    if (modalTotalDisplay) modalTotalDisplay.textContent = formatCurrency(subtotal);
+    if (modalTotalDisplay) modalTotalDisplay.textContent = formatCurrency(total);
     
     const cashInputGroup = document.getElementById('cashInputGroup');
     const cashReceivedInput = document.getElementById('cashReceived');
@@ -412,7 +414,9 @@ if (cashReceivedInput) {
     
     if (e.target.value !== '') {
       changeDisplayContainer.style.display = 'block';
-      const change = cash - subtotal;
+      let total = subtotal - discountAmount;
+      if (total < 0) total = 0;
+      const change = cash - total;
       
       if (change < 0) {
         changeAmount.textContent = formatCurrency(change);
@@ -439,7 +443,8 @@ if (btnCancelPayment) {
 if (btnConfirmPayment) {
   btnConfirmPayment.addEventListener('click', async () => {
     const subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-    const total = subtotal; // add tax/discount here if needed
+    let total = subtotal - discountAmount;
+    if (total < 0) total = 0;
     
     let cashRecv = 0;
     let changeAmt = 0;
