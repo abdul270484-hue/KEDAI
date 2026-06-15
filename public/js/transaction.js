@@ -698,9 +698,6 @@ if (btnConfirmPayment) {
       printCartData.forEach(item => {
         // Line 1: Item Name
         waText += `${item.name}\n`;
-        if (item.note && item.note.trim() !== '') {
-          waText += `  _Catatan: ${item.note}_\n`;
-        }
         
         // Line 2: Qty x Price ... Total
         let leftPart = `${item.qty} x ${formatCurrency(item.price)}`;
