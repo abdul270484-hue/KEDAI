@@ -785,10 +785,10 @@ const printReceipt = (trx) => {
   
   let itemsHtml = '';
   trx.items.forEach(item => {
-    let noteHtml = (item.note && item.note.trim() !== '') ? `<div style="font-size: 12px; font-style: italic; color: #333; margin-top: -2px; margin-bottom: 3px;">* Note: ${item.note}</div>` : '';
+    let noteHtml = (item.note && item.note.trim() !== '') ? `<div style="font-size: 13px; font-weight: bold; color: #000; margin-top: -2px; margin-bottom: 3px;">* Note: ${item.note}</div>` : '';
     itemsHtml += `
       <div class="flex-between">
-        <span style="flex:1; font-weight: bold;">${item.name}</span>
+        <span style="flex:1;">${item.name}</span>
       </div>
       ${noteHtml}
       <div class="flex-between" style="margin-bottom: 5px;">
