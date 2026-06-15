@@ -311,7 +311,7 @@ const updateCartQty = (index, delta) => {
 };
 
 const updateCartNote = (index, note) => {
-  cart[index].note = note;
+  cart[index].note = note ? note.toUpperCase() : '';
 };
 
 const renderCart = () => {
@@ -345,7 +345,7 @@ const renderCart = () => {
           <button class="qty-btn" onclick="window.updateQty(${index}, 1)">+</button>
         </div>
       </div>
-      <input type="text" class="cart-item-note" placeholder="Catatan opsional (ex: pedas)" value="${item.note}" onchange="window.updateNote(${index}, this.value)">
+      <input type="text" class="cart-item-note" placeholder="Catatan opsional (ex: pedas)" value="${item.note}" onchange="window.updateNote(${index}, this.value)" style="text-transform: uppercase;">
     `;
     cartItemsContainer.appendChild(div);
   });
