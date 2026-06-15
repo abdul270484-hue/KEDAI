@@ -698,6 +698,9 @@ if (btnConfirmPayment) {
       printCartData.forEach(item => {
         // Line 1: Item Name
         waText += `${item.name}\n`;
+        if (item.note && item.note.trim() !== '') {
+          waText += `  _Catatan: ${item.note}_\n`;
+        }
         
         // Line 2: Qty x Price ... Total
         let leftPart = `${item.qty} x ${formatCurrency(item.price)}`;
@@ -785,10 +788,12 @@ const printReceipt = (trx) => {
   
   let itemsHtml = '';
   trx.items.forEach(item => {
+    let noteHtml = (item.note && item.note.trim() !== '') ? `<div style="font-size: 12px; font-style: italic; color: #333; margin-top: -2px; margin-bottom: 3px;">* Note: ${item.note}</div>` : '';
     itemsHtml += `
       <div class="flex-between">
-        <span style="flex:1;">${item.name}</span>
+        <span style="flex:1; font-weight: bold;">${item.name}</span>
       </div>
+      ${noteHtml}
       <div class="flex-between" style="margin-bottom: 5px;">
         <span style="color: #666;">${item.qty} x ${item.price}</span>
         <span>${formatCurrency(item.qty * item.price)}</span>
