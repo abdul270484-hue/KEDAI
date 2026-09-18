@@ -77,7 +77,8 @@
     /* Fullscreen Modal for Cart Review */
     .cart-modal {
       position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
+      top: 0; left: 0; right: 0;
+      height: 100dvh; /* Use dynamic viewport height for mobile */
       background-color: var(--bg-color);
       z-index: 200;
       display: flex;
@@ -95,6 +96,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      flex-shrink: 0;
     }
     .cart-modal-body {
       flex: 1;
@@ -105,6 +107,8 @@
       padding: 1rem;
       background-color: var(--surface);
       border-top: 1px solid var(--border);
+      flex-shrink: 0;
+      padding-bottom: calc(1rem + env(safe-area-inset-bottom));
     }
     .empty-cart-msg {
       text-align: center;
@@ -130,13 +134,13 @@
     </div>
   </main>
 
-  <div class="sticky-cart" id="btnOpenCart">
+  <div class="sticky-cart" id="btnOpenCart" style="display: none;">
     <div>
       <div style="font-size: 0.8rem; color: var(--text-muted);">Total Pesanan</div>
       <div style="font-weight: bold; font-size: 1.2rem; color: var(--accent-gold);" id="cartTotalSummary">Rp 0</div>
     </div>
     <button class="btn btn-primary" style="padding: 0.5rem 1.5rem; border-radius: 20px;">
-      <i class="ph ph-shopping-cart" style="margin-right:0.5rem;"></i> Cek (<span id="cartCountSummary">0</span>)
+      <i class="ph ph-shopping-cart" style="margin-right:0.5rem;"></i> Order (<span id="cartCountSummary">0</span>)
     </button>
   </div>
 
@@ -167,14 +171,15 @@
     <div class="modal-content" style="text-align: center; padding: 2rem;">
       <i class="ph ph-check-circle text-success" style="font-size: 4rem; margin-bottom: 1rem;"></i>
       <h3>Pesanan Terkirim!</h3>
-      <p style="margin-top: 1rem; color: var(--text-muted);">
+      <p style="margin-top: 1rem; margin-bottom: 1.5rem; color: var(--text-muted);">
         Pesanan Anda sedang diproses oleh Kasir.<br><br>
         <strong>Silakan menuju Kasir untuk melakukan pembayaran!</strong>
       </p>
+      <button class="btn btn-outline w-full" onclick="document.getElementById('successModal').classList.remove('active'); window.scrollTo(0,0);" style="justify-content: center;">Pesan Menu Lainnya</button>
     </div>
   </div>
 
   <!-- App logic specific for customer -->
-  <script type="module" src="js/pesan.js?v=1"></script>
+  <script type="module" src="js/pesan.js?v=2"></script>
 </body>
 </html>

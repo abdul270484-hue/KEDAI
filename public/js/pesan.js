@@ -122,12 +122,16 @@ const updateCartUI = () => {
   document.getElementById('cartCountSummary').textContent = totalQty;
   document.getElementById('modalTotal').textContent = formatCurrency(total);
   
+  const stickyCart = document.getElementById('btnOpenCart');
+  
   // Render modal items
   const container = document.getElementById('cartItemsCust');
   if (cart.length === 0) {
+    stickyCart.style.display = 'none';
     container.innerHTML = '<div class="empty-cart-msg">Keranjang Anda masih kosong.</div>';
     document.getElementById('btnSubmitOrder').disabled = true;
   } else {
+    stickyCart.style.display = 'flex';
     document.getElementById('btnSubmitOrder').disabled = false;
     container.innerHTML = '';
     cart.forEach((item, index) => {
