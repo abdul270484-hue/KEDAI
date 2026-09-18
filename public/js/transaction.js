@@ -874,11 +874,20 @@ let pendingOrders = [];
 
 const listenToPendingOrders = () => {
   if (window.isOfflineMode) return;
-  const q = query(collection(db, 'pending_orders'), where('status', '==', 'pending'), orderBy('timestamp', 'asc'));
+  const q = query(collection(db, 'pending_orders'));
   onSnapshot(q, (snapshot) => {
     pendingOrders = [];
     snapshot.forEach(d => {
-      pendingOrders.push({ id: d.id, ...d.data() });
+      const data = d.data();
+      if (data.status === 'pending') {
+        pendingOrders.push({ id: d.id, ...data });
+      }
+    });
+    // Sort manually by timestamp
+    pendingOrders.sort((a, b) => {
+      const timeA = a.timestamp ? a.timestamp.toMillis() : 0;
+      const timeB = b.timestamp ? b.timestamp.toMillis() : 0;
+      return timeA - timeB;
     });
     updatePendingBadge();
     renderPendingOrders();
