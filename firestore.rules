@@ -23,7 +23,7 @@ service cloud.firestore {
     // 2. KELOLA MENU
     // Kasir butuh membaca menu untuk transaksi. Tapi HANYA OWNER yang boleh ubah harga/tambah menu.
     match /menu/{menuId} {
-      allow read: if isAuthenticated();
+      allow read: if true;
       allow write: if isOwner();
     }
 
@@ -43,6 +43,13 @@ service cloud.firestore {
     match /promos/{promoId} {
       allow read: if isAuthenticated();
       allow write: if isOwner();
+    }
+
+    // 5. PENDING ORDERS (Self-Service)
+    match /pending_orders/{orderId} {
+      // Konsumen bisa membuat order baru tanpa login. Kasir bisa membaca, mengubah, dan menghapus.
+      allow create: if true;
+      allow read, update, delete: if isAuthenticated();
     }
   }
 }

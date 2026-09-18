@@ -6,7 +6,12 @@ import {
   serverTimestamp,
   doc,
   setDoc,
-  increment
+  increment,
+  onSnapshot,
+  query,
+  where,
+  orderBy,
+  deleteDoc
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 import { db } from './firebase-config.js';
 import { formatCurrency, showToast, showLoader, hideLoader, playSound } from './app.js';
@@ -23,6 +28,7 @@ let discountAmount = 0;
 let appliedPromoName = '';
 let cashierName = 'Kasir';
 let activePromos = [];
+let selectedPendingOrderId = null;
 
 // Elements
 const categorySidebar = document.getElementById('categorySidebar');
@@ -658,6 +664,13 @@ if (btnConfirmPayment) {
        
        // 3. Send Silent Notification to Owner
        sendTelegramNotification(transactionId, selectedTable, cart, subtotal, discountAmount, appliedPromoName, total, paymentMethod);
+       
+       if (selectedPendingOrderId) {
+         try {
+           await deleteDoc(doc(db, 'pending_orders', selectedPendingOrderId));
+         } catch(e) { console.error(e); }
+         selectedPendingOrderId = null;
+       }
     }
     
     playSound('kaching');
@@ -856,8 +869,96 @@ const printReceipt = (trx) => {
 // Init
 loadMenuRealtime();
 
+// --- PENDING ORDERS LOGIC ---
+let pendingOrders = [];
+
+const listenToPendingOrders = () => {
+  if (window.isOfflineMode) return;
+  const q = query(collection(db, 'pending_orders'), where('status', '==', 'pending'), orderBy('timestamp', 'asc'));
+  onSnapshot(q, (snapshot) => {
+    pendingOrders = [];
+    snapshot.forEach(d => {
+      pendingOrders.push({ id: d.id, ...d.data() });
+    });
+    updatePendingBadge();
+    renderPendingOrders();
+  });
+};
+
+const updatePendingBadge = () => {
+  const badge = document.getElementById('pendingBadge');
+  if (!badge) return;
+  if (pendingOrders.length > 0) {
+    badge.textContent = pendingOrders.length;
+    badge.style.display = 'inline-block';
+    playSound('beep');
+  } else {
+    badge.style.display = 'none';
+  }
+};
+
+const renderPendingOrders = () => {
+  const container = document.getElementById('pendingOrdersContainer');
+  if (!container) return;
+  
+  if (pendingOrders.length === 0) {
+    container.innerHTML = '<div class="text-muted" style="text-align: center;">Tidak ada pesanan masuk.</div>';
+    return;
+  }
+  
+  container.innerHTML = '';
+  pendingOrders.forEach(order => {
+    const div = document.createElement('div');
+    div.style.border = '1px solid var(--border)';
+    div.style.padding = '1rem';
+    div.style.marginBottom = '0.5rem';
+    div.style.borderRadius = '8px';
+    div.style.display = 'flex';
+    div.style.justifyContent = 'space-between';
+    div.style.alignItems = 'center';
+    
+    div.innerHTML = `
+      <div>
+        <h4 style="margin:0; color:var(--accent-gold);">Meja ${order.tableNumber}</h4>
+        <p style="margin:0; font-size:0.9rem;">${order.items.length} items - ${formatCurrency(order.subtotal)}</p>
+      </div>
+      <button class="btn btn-primary" onclick="window.loadPendingOrder('${order.id}')">Proses</button>
+    `;
+    container.appendChild(div);
+  });
+};
+
+window.loadPendingOrder = (orderId) => {
+  const order = pendingOrders.find(o => o.id === orderId);
+  if (!order) return;
+  
+  selectedTable = `Meja ${order.tableNumber}`;
+  renderTables();
+  
+  cart = order.items.map(item => ({...item}));
+  
+  document.getElementById('pendingOrdersModal').classList.remove('active');
+  selectedPendingOrderId = orderId;
+  
+  renderCart();
+  showToast(`Pesanan Meja ${order.tableNumber} dimuat`);
+};
+
+const btnPendingOrders = document.getElementById('btnPendingOrders');
+const btnClosePending = document.getElementById('btnClosePending');
+const pendingOrdersModal = document.getElementById('pendingOrdersModal');
+
+if (btnPendingOrders && pendingOrdersModal) {
+  btnPendingOrders.addEventListener('click', () => {
+    pendingOrdersModal.classList.add('active');
+  });
+  btnClosePending.addEventListener('click', () => {
+    pendingOrdersModal.classList.remove('active');
+  });
+}
+
+listenToPendingOrders();
+
 // cache-buster-v2
-
 // fallback-fix-v3
-
 // anti-crash-v1
