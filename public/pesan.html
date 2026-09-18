@@ -4,13 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Pesan Menu - Kedai Madep Ngulon</title>
-  <link rel="stylesheet" href="css/style.css?v=5">
+  <link rel="stylesheet" href="css/style.css?v=6">
   <script src="https://unpkg.com/@phosphor-icons/web"></script>
   <style>
     /* Specific styles for self-service mobile view */
-    body { background-color: var(--bg-color); }
+    body { background-color: var(--bg-primary); }
     .customer-header {
-      background-color: var(--surface);
+      background-color: var(--bg-secondary);
       padding: 1rem;
       position: sticky;
       top: 0;
@@ -40,9 +40,9 @@
       margin-bottom: 1rem;
     }
     .cat-pill {
-      background-color: var(--surface-light);
-      border: 1px solid var(--border);
-      color: var(--text-color);
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
       padding: 0.5rem 1rem;
       border-radius: 20px;
       white-space: nowrap;
@@ -64,7 +64,7 @@
       bottom: 0;
       left: 0;
       right: 0;
-      background-color: var(--surface);
+      background-color: var(--bg-secondary);
       padding: 1rem;
       box-shadow: 0 -4px 15px rgba(0,0,0,0.8);
       display: flex;
@@ -77,9 +77,10 @@
     /* Fullscreen Modal for Cart Review */
     .cart-modal {
       position: fixed;
-      top: 0; left: 0; right: 0;
-      height: 100dvh; /* Use dynamic viewport height for mobile */
-      background-color: var(--bg-color);
+      top: 0; left: 0; right: 0; bottom: 0; /* Fallback for browsers that don't support dvh well */
+      height: 100vh;
+      height: 100dvh;
+      background-color: var(--bg-primary);
       z-index: 200;
       display: flex;
       flex-direction: column;
@@ -91,8 +92,8 @@
     }
     .cart-modal-header {
       padding: 1rem;
-      background-color: var(--surface);
-      border-bottom: 1px solid var(--border);
+      background-color: var(--bg-secondary);
+      border-bottom: 1px solid var(--border-color);
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -105,8 +106,8 @@
     }
     .cart-modal-footer {
       padding: 1rem;
-      background-color: var(--surface);
-      border-top: 1px solid var(--border);
+      background-color: var(--bg-secondary);
+      border-top: 1px solid var(--border-color);
       flex-shrink: 0;
       padding-bottom: calc(1rem + env(safe-area-inset-bottom));
     }
